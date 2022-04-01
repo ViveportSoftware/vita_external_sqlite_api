@@ -50,6 +50,21 @@ cmakeOptions.Add("-DMY_PROJECT_NAME=" + product);
 cmakeOptions.Add("-DMY_REVISION=" + revision);
 cmakeOptions.Add("-DMY_VER=" + version);
 var isReleaseBuild = "Release".Equals(configuration) || "RelWithDebInfo".Equals(configuration);
+var shouldBuildArmBinary = (
+        "v140".Equals(cmakeToolset)
+        || "v141".Equals(cmakeToolset)
+        || "v142".Equals(cmakeToolset)
+        || "v143".Equals(cmakeToolset)
+) && "ON".Equals(cmakeWithArmBinary);
+var shouldBuildArm64Binary = (
+        "v141".Equals(cmakeToolset)
+        || "v142".Equals(cmakeToolset)
+        || "v143".Equals(cmakeToolset)
+) && "ON".Equals(cmakeWithArmBinary);
+var shouldBuildArm64EcBinary = (
+        "v142".Equals(cmakeToolset)
+        || "v143".Equals(cmakeToolset)
+) && "ON".Equals(cmakeWithArm64EcBinary);
 
 // Define copyright
 var copyright = string.Format("Copyright © 2022 - {0}", DateTime.Now.Year);
@@ -183,14 +198,8 @@ Task("Build-Binary-Win32")
 });
 
 Task("Build-Binary-ARM")
-    .WithCriteria(() =>
-            (
-                    "v140".Equals(cmakeToolset)
-                    || "v141".Equals(cmakeToolset)
-                    || "v142".Equals(cmakeToolset)
-                    || "v143".Equals(cmakeToolset)
-            ) && "ON".Equals(cmakeWithArmBinary)
-    ).IsDependentOn("Build-Binary-Win32")
+    .WithCriteria(() => shouldBuildArmBinary)
+    .IsDependentOn("Build-Binary-Win32")
     .Does(() =>
 {
     if(IsRunningOnWindows())
@@ -218,14 +227,7 @@ Task("Build-Binary-ARM")
 });
 
 Task("Build-Binary-x64")
-    .WithCriteria(() =>
-            (
-                    "v140".Equals(cmakeToolset)
-                    || "v141".Equals(cmakeToolset)
-                    || "v142".Equals(cmakeToolset)
-                    || "v143".Equals(cmakeToolset)
-            )
-    ).IsDependentOn("Build-Binary-ARM")
+    .IsDependentOn("Build-Binary-ARM")
     .Does(() =>
 {
     if(IsRunningOnWindows())
@@ -254,13 +256,8 @@ Task("Build-Binary-x64")
 });
 
 Task("Build-Binary-ARM64")
-    .WithCriteria(() =>
-            (
-                    "v141".Equals(cmakeToolset)
-                    || "v142".Equals(cmakeToolset)
-                    || "v143".Equals(cmakeToolset)
-            ) && "ON".Equals(cmakeWithArmBinary)
-    ).IsDependentOn("Build-Binary-x64")
+    .WithCriteria(() => shouldBuildArm64Binary)
+    .IsDependentOn("Build-Binary-x64")
     .Does(() =>
 {
     if(IsRunningOnWindows())
@@ -293,12 +290,8 @@ Task("Build-Binary-ARM64")
 });
 
 Task("Build-Binary-ARM64EC")
-    .WithCriteria(() =>
-            (
-                    "v142".Equals(cmakeToolset)
-                    || "v143".Equals(cmakeToolset)
-            ) && "ON".Equals(cmakeWithArm64EcBinary)
-    ).IsDependentOn("Build-Binary-ARM64")
+    .WithCriteria(() => shouldBuildArm64EcBinary)
+    .IsDependentOn("Build-Binary-ARM64")
     .Does(() =>
 {
     if(IsRunningOnWindows())
@@ -408,13 +401,7 @@ Task("Sign-Binaries")
     );
     lastSignTimestamp = DateTime.Now;
 
-    var isCriteriaMatched = (
-            "v140".Equals(cmakeToolset)
-            || "v141".Equals(cmakeToolset)
-            || "v142".Equals(cmakeToolset)
-            || "v143".Equals(cmakeToolset)
-    ) && "ON".Equals(cmakeWithArmBinary);
-    if (isCriteriaMatched)
+    if (shouldBuildArmBinary)
     {
         file = string.Format("./temp/{0}/ARM/{0}/{1}.dll", configuration, product);
 
@@ -437,12 +424,7 @@ Task("Sign-Binaries")
         lastSignTimestamp = DateTime.Now;
     }
 
-    isCriteriaMatched = (
-            "v141".Equals(cmakeToolset)
-            || "v142".Equals(cmakeToolset)
-            || "v143".Equals(cmakeToolset)
-    ) && "ON".Equals(cmakeWithArmBinary);
-    if (isCriteriaMatched)
+    if (shouldBuildArm64Binary)
     {
         file = string.Format("./temp/{0}/ARM64/{0}/{1}64.dll", configuration, product);
 
@@ -465,11 +447,7 @@ Task("Sign-Binaries")
         lastSignTimestamp = DateTime.Now;
     }
 
-    isCriteriaMatched = (
-            "v142".Equals(cmakeToolset)
-            || "v143".Equals(cmakeToolset)
-    ) && "ON".Equals(cmakeWithArm64EcBinary);
-    if (isCriteriaMatched)
+    if (shouldBuildArm64EcBinary)
     {
         file = string.Format("./temp/{0}/ARM64EC/{0}/{1}64.dll", configuration, product);
 
@@ -505,18 +483,27 @@ Task("Gzip-Binaries")
             File(string.Format("./temp/{0}/Win32/{0}/{1}.dll", configuration, product)),
             Directory(string.Format("./temp/{0}/Win32/{0}/", configuration, product))
     );
-    GZipFile(
-            File(string.Format("./temp/{0}/ARM/{0}/{1}.dll", configuration, product)),
-            Directory(string.Format("./temp/{0}/ARM/{0}/", configuration, product))
-    );
-    GZipFile(
-            File(string.Format("./temp/{0}/ARM64/{0}/{1}64.dll", configuration, product)),
-            Directory(string.Format("./temp/{0}/ARM64/{0}/", configuration, product))
-    );
-    GZipFile(
-            File(string.Format("./temp/{0}/ARM64EC/{0}/{1}64.dll", configuration, product)),
-            Directory(string.Format("./temp/{0}/ARM64EC/{0}/", configuration, product))
-    );
+    if (shouldBuildArmBinary)
+    {
+        GZipFile(
+                File(string.Format("./temp/{0}/ARM/{0}/{1}.dll", configuration, product)),
+                Directory(string.Format("./temp/{0}/ARM/{0}/", configuration, product))
+        );
+    }
+    if (shouldBuildArm64Binary)
+    {
+        GZipFile(
+                File(string.Format("./temp/{0}/ARM64/{0}/{1}64.dll", configuration, product)),
+                Directory(string.Format("./temp/{0}/ARM64/{0}/", configuration, product))
+        );
+    }
+    if (shouldBuildArm64EcBinary)
+    {
+        GZipFile(
+                File(string.Format("./temp/{0}/ARM64EC/{0}/{1}64.dll", configuration, product)),
+                Directory(string.Format("./temp/{0}/ARM64EC/{0}/", configuration, product))
+        );
+    }
 });
 
 Task("Build-NuGet-Package")
@@ -560,11 +547,7 @@ Task("Build-NuGet-Package")
                     Target = "lib\\x64"
             }
     );
-    var isCriteriaMatched = (
-            "v142".Equals(cmakeToolset)
-            || "v143".Equals(cmakeToolset)
-    ) && "ON".Equals(cmakeWithArm64EcBinary);
-    if (isCriteriaMatched)
+    if (shouldBuildArm64EcBinary)
     {
         nuspecContents.Add(
                 new NuSpecContent
@@ -595,12 +578,7 @@ Task("Build-NuGet-Package")
                 }
         );
     }
-    isCriteriaMatched = (
-            "v141".Equals(cmakeToolset)
-            || "v142".Equals(cmakeToolset)
-            || "v143".Equals(cmakeToolset)
-    ) && "ON".Equals(cmakeWithArmBinary);
-    if (isCriteriaMatched)
+    if (shouldBuildArm64Binary)
     {
         nuspecContents.Add(
                 new NuSpecContent
@@ -659,13 +637,7 @@ Task("Build-NuGet-Package")
                     Target = "lib\\Win32"
             }
     );
-    isCriteriaMatched = (
-            "v140".Equals(cmakeToolset)
-            || "v141".Equals(cmakeToolset)
-            || "v142".Equals(cmakeToolset)
-            || "v143".Equals(cmakeToolset)
-    ) && "ON".Equals(cmakeWithArmBinary);
-    if (isCriteriaMatched)
+    if (shouldBuildArmBinary)
     {
         nuspecContents.Add(
                 new NuSpecContent
@@ -705,11 +677,7 @@ Task("Build-NuGet-Package")
                         Target = "lib\\x64"
                 }
         );
-        isCriteriaMatched = (
-                "v142".Equals(cmakeToolset)
-                || "v143".Equals(cmakeToolset)
-        ) && "ON".Equals(cmakeWithArm64EcBinary);
-        if (isCriteriaMatched)
+        if (shouldBuildArm64EcBinary)
         {
             nuspecContents.Add(
                     new NuSpecContent
@@ -719,12 +687,7 @@ Task("Build-NuGet-Package")
                     }
             );
         }
-        isCriteriaMatched = (
-                "v141".Equals(cmakeToolset)
-                || "v142".Equals(cmakeToolset)
-                || "v143".Equals(cmakeToolset)
-        ) && "ON".Equals(cmakeWithArmBinary);
-        if (isCriteriaMatched)
+        if (shouldBuildArm64Binary)
         {
             nuspecContents.Add(
                     new NuSpecContent
@@ -741,13 +704,7 @@ Task("Build-NuGet-Package")
                         Target = "lib\\Win32"
                 }
         );
-        isCriteriaMatched = (
-                "v140".Equals(cmakeToolset)
-                || "v141".Equals(cmakeToolset)
-                || "v142".Equals(cmakeToolset)
-                || "v143".Equals(cmakeToolset)
-        ) && "ON".Equals(cmakeWithArmBinary);
-        if (isCriteriaMatched)
+        if (shouldBuildArmBinary)
         {
             nuspecContents.Add(
                     new NuSpecContent
