@@ -13,6 +13,7 @@ option( BUILD_WITH_SHARED_VCRT "Build library with shared vc runtime library." O
 option( BUILD_WITH_STATIC_VCRT "Build library without shared vc runtime library." OFF )
 option( BUILD_WITH_TEST_RUNNER "Build library and start test runner." OFF )
 option( BUILD_WITH_WORKAROUND_ARM64RT "Build library with workaround arm64rt.lib library" OFF )
+option( BUILD_WITH_WORKAROUND_OPT_GY "Build library with workaround /Gy compiler option" OFF )
 option( BUILD_WITH_WORKAROUND_SOFTINTRIN "Build library with workaround softintrin.lib library" OFF )
 option( BUILD_WITH_WORKAROUND_SPECTRE "Build library with workaround spectre mitigation library" OFF )
 

@@ -1,5 +1,6 @@
 #
 #
+include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 
 if( MSVC )
@@ -44,6 +45,19 @@ if( BUILD_WITH_STATIC_VCRT )
       string( REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}" )
     endif()
   endforeach()
+endif()
+
+if( BUILD_WITH_WORKAROUND_OPT_GY )
+  ## Presets:
+  ##   Use /Gy for enabling function-level linking
+  check_c_compiler_flag( -Gy HAS_GY_C )
+  if( HAS_GY_C )
+    string(APPEND CMAKE_C_FLAGS " /Gy")
+  endif()
+  check_cxx_compiler_flag( -Gy HAS_GY_CXX )
+  if( HAS_GY_CXX )
+    string(APPEND CMAKE_CXX_FLAGS " /Gy")
+  endif()
 endif()
 
 if( BUILD_WITH_WORKAROUND_SPECTRE )
