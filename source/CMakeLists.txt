@@ -45,9 +45,10 @@ if( WIN32 )
   ## Set project sources
   set( MY_PROJECT_HEADERS
       sqlite/core/sqlite3.h
-      sqlite/core/sqlite3ext.h )
+      sqlite/core/sqlite3ext.h
+      sqlite/generic/interop.h )
   set( MY_PROJECT_SOURCES
-      sqlite/core/sqlite3.c )
+      sqlite/generic/interop.c )
 
   ## Set dll options
   include( generate_product_dll_version )
@@ -61,29 +62,31 @@ if( WIN32 )
 
   ## Add additional definitions
   add_definitions(
+      -D_CRT_SECURE_NO_WARNINGS
       -D_UNICODE
       -DINTEROP_CODEC=1
       -DINTEROP_EXTENSION_FUNCTIONS=1
       -DINTEROP_FTS5_EXTENSION=1
-      -DINTEROP_JSON1_EXTENSION=1
       -DINTEROP_PERCENTILE_EXTENSION=1
       -DINTEROP_PLACEHOLDER=1
       -DINTEROP_REGEXP_EXTENSION=1
       -DINTEROP_SESSION_EXTENSION=1
       -DINTEROP_SHA1_EXTENSION=1
       -DINTEROP_TOTYPE_EXTENSION=1
+      -DINTEROP_VERSION="${MY_VER}.${MY_REVISION}"
       -DINTEROP_VIRTUAL_TABLE=1
       -DSQLITE_ENABLE_API_ARMOR=1
       -DSQLITE_ENABLE_COLUMN_METADATA=1
+      -DSQLITE_ENABLE_DBPAGE_VTAB=1
       -DSQLITE_ENABLE_DBSTAT_VTAB=1
       -DSQLITE_ENABLE_FTS3=1
       -DSQLITE_ENABLE_LOAD_EXTENSION=1
+      -DSQLITE_ENABLE_MATH_FUNCTIONS=1
       -DSQLITE_ENABLE_MEMORY_MANAGEMENT=1
       -DSQLITE_ENABLE_RTREE=1
       -DSQLITE_ENABLE_STAT4=1
       -DSQLITE_ENABLE_STMTVTAB=1
-      -DSQLITE_HAS_CODEC=1
-      -DSQLITE_PLACEHOLDER=1
+      -DSQLITE_ENABLE_UPDATE_DELETE_LIMIT=1
       -DSQLITE_SOUNDEX=1
       -DSQLITE_THREADSAFE=1
       -DSQLITE_USE_URI=1 )
@@ -107,7 +110,6 @@ if( WIN32 )
   ## Set output name
   set_target_properties(
       ${PROJECT_NAME} PROPERTIES
-      DEFINE_SYMBOL "SQLITE_API=__declspec(dllexport)"
       OUTPUT_NAME ${PROJECT_NAME}${MY_PROJECT_SUFFIX} )
   set_target_properties(
       ${PROJECT_NAME}_static PROPERTIES
@@ -133,17 +135,11 @@ if( WIN32 )
   add_executable(
       sqlite_shell
       ${MY_SHELL_SOURCES} )
-  add_executable(
-      sqlite_shell_static
-      ${MY_SHELL_SOURCES} )
   
   ## Set compile-time dependency libraries
   target_link_libraries(
       sqlite_shell
       ${PROJECT_NAME} )
-  target_link_libraries(
-      sqlite_shell_static
-      ${PROJECT_NAME}_static )
   target_link_libraries(
       test_${PROJECT_NAME}
       ${PROJECT_NAME} )
