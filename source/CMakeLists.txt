@@ -39,14 +39,15 @@ if( WIN32 )
 
   include_directories(
       ${CMAKE_SOURCE_DIR}/external
+      ${CMAKE_SOURCE_DIR}/sqlite/core
       ${CMAKE_CURRENT_BINARY_DIR} )
 
   ## Set project sources
   set( MY_PROJECT_HEADERS
-      sqlite3.h
-      sqlite3ext.h )
+      sqlite/core/sqlite3.h
+      sqlite/core/sqlite3ext.h )
   set( MY_PROJECT_SOURCES
-      sqlite3.c )
+      sqlite/core/sqlite3.c )
 
   ## Set dll options
   include( generate_product_dll_version )
@@ -126,7 +127,7 @@ if( WIN32 )
 
   ## Set shell sources
   set( MY_SHELL_SOURCES
-      shell.c )
+      sqlite/core/shell.c )
 
   ## Collect all shell compile units
   add_executable(

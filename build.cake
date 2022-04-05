@@ -688,14 +688,14 @@ Task("Build-NuGet-Package")
     nuspecContents.Add(
             new NuSpecContent
             {
-                    Source = string.Format("../../source/sqlite3.h", product),
+                    Source = string.Format("../../source/sqlite/core/sqlite3.h", product),
                     Target = "include"
             }
     );
     nuspecContents.Add(
             new NuSpecContent
             {
-                    Source = string.Format("../../source/sqlite3ext.h", product),
+                    Source = string.Format("../../source/sqlite/core/sqlite3ext.h", product),
                     Target = "include"
             }
     );
