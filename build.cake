@@ -137,6 +137,7 @@ Task("Fetch-Git-Commit-ID")
 {
     var lastCommit = GitLogTip(MakeAbsolute(Directory(".")));
     commitId = lastCommit.Sha;
+    cmakeOptions.Add("-DMY_PROJECT_SOURCE_ID=" + commitId);
 });
 
 Task("Display-Config")

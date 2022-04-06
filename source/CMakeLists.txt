@@ -3,6 +3,7 @@ cmake_minimum_required( VERSION 3.4 )
 ## Dump current settings
 message( "MY_PROJECT_DESC: " ${MY_PROJECT_DESC} )
 message( "MY_PROJECT_NAME: " ${MY_PROJECT_NAME} )
+message( "MY_PROJECT_SOURCE_ID: " ${MY_PROJECT_SOURCE_ID} )
 message( "MY_PROJECT_SUFFIX: " ${MY_PROJECT_SUFFIX} )
 message( "MY_REVISION: " ${MY_REVISION} )
 message( "MY_VER: " ${MY_VER} )
@@ -27,6 +28,8 @@ if( _my_list_len EQUAL 4 )
   list( GET _my_ver_LIST 3 MY_VER_PATCHLEVEL )
   message( "Patch level: ${MY_VER_PATCHLEVEL}" )
 endif()
+
+string( TIMESTAMP MY_CURRENT_TIMESTAMP "%Y-%m-%d %H:%M:%S UTC" UTC )
 
 ## Include local cmake module directory
 set( CMAKE_MODULE_PATH
@@ -72,6 +75,8 @@ if( WIN32 )
       -DINTEROP_REGEXP_EXTENSION=1
       -DINTEROP_SESSION_EXTENSION=1
       -DINTEROP_SHA1_EXTENSION=1
+      -DINTEROP_SOURCE_ID="${MY_PROJECT_SOURCE_ID}"
+      -DINTEROP_SOURCE_TIMESTAMP="${MY_CURRENT_TIMESTAMP}"
       -DINTEROP_TOTYPE_EXTENSION=1
       -DINTEROP_VERSION="${MY_VER}.${MY_REVISION}"
       -DINTEROP_VIRTUAL_TABLE=1
