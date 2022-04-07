@@ -717,7 +717,7 @@ Task("Build-NuGet-Package")
 
     var nuGetPackSettings = new NuGetPackSettings
     {
-            Id = product + "." + cmakeToolset,
+            Id = "htc_" + product + "." + cmakeToolset,
             Version = nugetPackVersion,
             Authors = new[] {"HTC"},
             Description = productDescription + " [CommitId: " + commitId + "]",
