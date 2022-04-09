@@ -127,10 +127,12 @@ if( WIN32 )
   ## Collect all test compile units
   add_executable(
       test_${PROJECT_NAME}
-      ${MY_TEST_SOURCES} )
+      ${MY_TEST_SOURCES}
+      ${MY_VERSION_FILES} )
   add_executable(
       test_${PROJECT_NAME}_static
-      ${MY_TEST_SOURCES} )
+      ${MY_TEST_SOURCES}
+      ${MY_VERSION_FILES} )
 
   ## Set shell sources
   set( MY_SHELL_SOURCES
@@ -168,5 +170,15 @@ if( WIN32 )
     target_link_libraries(
         ${PROJECT_NAME}_static
         softintrin.lib )
+  endif()
+
+  if( BUILD_WITH_TEST_RUNNER )
+    enable_testing()
+    add_test(
+        catch2test
+        ${PROJECT_BINARY_DIR}/test_${PROJECT_NAME} )
+    add_test(
+        catch2test_static
+        ${PROJECT_BINARY_DIR}/test_${PROJECT_NAME}_static )
   endif()
 endif()
