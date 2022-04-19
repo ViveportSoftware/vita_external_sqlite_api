@@ -1,28 +1,17 @@
+#define CATCH_CONFIG_MAIN
+
 #include <string>
 
+#include "catch.hpp"
 #include "sqlite3.h"
 
-void open_database_file()
+TEST_CASE("Database can be opened and closed", "[sqlite3]")
 {
     sqlite3* db;
 
     auto result = sqlite3_open("test.db", &db);
-    if (result != SQLITE_OK)
-    {
-        return;
-    }
+    REQUIRE(result == SQLITE_OK);
+
     result = sqlite3_close(db);
-    if (result != SQLITE_OK)
-    {
-        return;
-    }
-}
-
-int main(int argc, char* argv[])
-{
-    open_database_file();
-
-    getchar();
-
-    return 0;
+    REQUIRE(result == SQLITE_OK);
 }
